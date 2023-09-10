@@ -24,7 +24,7 @@ export default function Search() {
             if (res.ok) {
                 const dataRes = await res.json();
                 setData(dataRes)
-                console.log(`data`, dataRes)
+                console.log(`data response`, dataRes)
 
             }
         }
