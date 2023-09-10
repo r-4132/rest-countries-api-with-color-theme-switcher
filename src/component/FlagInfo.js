@@ -18,11 +18,12 @@ function FlagInfo() {
 
     const location = useLocation();
     const { countryData } = location.state;
+    const { borderCountries } = location.state;
 
     const fetchBorder = async (e) => {
-        setBorder(countryData[0].borders.join(','))
         try {
-            const res = await fetch(`https://restcountries.com/v3.1/alpha?codes=${border}`)
+            // setBorder(countryData[0].borders.join(','))
+            const res = await fetch(`https://restcountries.com/v3.1/alpha?codes=${borderCountries}`)
             if (res.ok) {
                 const dataJson = await res.json();
                 setBorderJson(dataJson);
@@ -36,23 +37,21 @@ function FlagInfo() {
     }
 
     useEffect(() => {
-
-        const country = countryData.map((country) => {
-            const nativeNames = Object.values(country.name.nativeName);
-            const cur = Object.values(country.currencies);
-            const lang = Object.values(country.languages);
-            setNativeName(nativeNames[0].common)
-            setCountry(country.name.common);
-            setPopulation(country.population);
-            setRegion(country.capital);
-            setSubRegion(country.subregion);
-            setCapital(country.capital);
-            setTopLevelDomain(country.tld[0]);
-            setCurrencies(cur[0].symbol);
-            setLanguages(lang[0]);
-        });
-
         fetchBorder();
+
+        const nativeNames = Object.values(countryData[0].name.nativeName);
+        const cur = Object.values(countryData[0].currencies);
+        const lang = Object.values(countryData[0].languages);
+        setNativeName(nativeNames[0].common);
+        setCountry(countryData[0].name.common);
+        setPopulation(countryData[0].population);
+        setRegion(countryData[0].capital);
+        setSubRegion(countryData[0].subregion);
+        setCapital(countryData[0].capital);
+        setTopLevelDomain(countryData[0].tld[0]);
+        setCurrencies(cur[0].symbol);
+        setLanguages(lang[0]);
+    
 
     }, [countryData]);
     return (

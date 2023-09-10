@@ -9,6 +9,7 @@ export default function Search() {
     const [currentPage, setCurrentPage] = useState(1);
     const [allFlags, setAllFlags] = useState([]);
     const [filter, setFilter] = useState([]);
+    const [border, setBorder] = useState([]);
     const [region, setRegion] = useState('');
 
     const flagsPerPage = 6;
@@ -24,6 +25,7 @@ export default function Search() {
             if (res.ok) {
                 const dataRes = await res.json();
                 setData(dataRes)
+                setBorder(dataRes.borders)
                 console.log(`data response`, dataRes)
 
             }
@@ -104,7 +106,8 @@ export default function Search() {
 
     const handleClick = () => {
         const dataArray = Object.values(data);
-        navigate(`/flagInfo`, { state: { countryData: dataArray } });
+        const borderCountries = data.map(x => x.borders.join(','))
+        navigate(`/flagInfo`, { state: { countryData: dataArray, borderCountries:borderCountries  } });
     }
 
 
