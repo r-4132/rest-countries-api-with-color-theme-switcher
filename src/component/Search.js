@@ -103,8 +103,13 @@ export default function Search() {
 
     const handleClick = () => {
         const dataArray = Object.values(data);
-        const borderCountries = data.map(x => x.borders.join(','))
-        navigate(`/flagInfo`, { state: { countryData: dataArray, borderCountries:borderCountries  } });
+        
+        if (!dataArray.some(x => x.borders)){
+            navigate(`/flagInfo`, { state: { countryData: dataArray } });
+        } else {
+            const borderCountries = data.map(x => x.borders.join(','))
+            navigate(`/flagInfo`, { state: { countryData: dataArray, borderCountries:borderCountries  } });
+        }
     }
 
 
