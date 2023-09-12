@@ -10,6 +10,8 @@ export default function Search() {
     const [allFlags, setAllFlags] = useState([]);
     const [filter, setFilter] = useState([]);
     const [region, setRegion] = useState('');
+    const [showResult, setShowResult] = useState(false)
+    const [notFound, setNotFound] = useState(false)
 
     const flagsPerPage = 6;
     const navigate = useNavigate();
@@ -25,7 +27,8 @@ export default function Search() {
                 const dataRes = await res.json();
                 setData(dataRes)
                 console.log(`data response`, dataRes)
-
+            } else if (res.status === 404){
+                setNotFound(true)
             }
         }
         catch {
@@ -55,7 +58,7 @@ export default function Search() {
             if (res.ok) {
                 const filterRes = await res.json();
                 setFilter(filterRes)
-            }
+            } 
         }
         catch {
             console.log('error in filter region');
@@ -76,8 +79,11 @@ export default function Search() {
     }, [flag, currentPage])
 
 
-    const handleSearch = () => {
-        fetchData();
+    const handleSearch = (e) => {
+        if (e.key === 'Enter') {
+            setShowResult(true)
+            fetchData();
+        }
     }
 
     const handlePage = nextPage => {
@@ -95,7 +101,7 @@ export default function Search() {
     ]
 
 
-    const handleFilterRegion = (event) =>{
+    const handleFilterRegion = (event) => {
         setRegion(event.target.value);
         const selectedRegion = event.target.value;
         fetchFilter();
@@ -103,70 +109,74 @@ export default function Search() {
 
     const handleClick = () => {
         const dataArray = Object.values(data);
-        
-        if (!dataArray.some(x => x.borders)){
+
+        if (!dataArray.some(x => x.borders)) {
             navigate(`/flagInfo`, { state: { countryData: dataArray } });
         } else {
             const borderCountries = data.map(x => x.borders.join(','))
-            navigate(`/flagInfo`, { state: { countryData: dataArray, borderCountries:borderCountries  } });
+            navigate(`/flagInfo`, { state: { countryData: dataArray, borderCountries: borderCountries } });
         }
     }
 
 
     return (
         <>
-            <label>
-                search country:
-                <input type='text' value={searchInput} placeholder='search country' onChange={e => setSearchInput(e.target.value)} />
-                <button type="submit" onClick={handleSearch} >Search</button>
-                {
-                    data.map((item, index) => {
+            <div className=' flex flex-col space-y-8'>
+                <label className='w-[80%] h-[2rem] outline outline-1 self-center mt-[1rem]'>
+                    <input className='w-[100%] h-[100%]' onKeyPress={handleSearch} type='text' value={searchInput} placeholder='search country' onChange={e => setSearchInput(e.target.value)} />
+                    {/* <button type="submit" onClick={handleSearch} >Search</button> */}
+                </label>
+                <label>
+                    <select value={region} onChange={handleFilterRegion}>
+                        <option value="">Filter by region:</option>
+                        {regionFilter.map((item) => (
+                            <option value={item}>{item}</option>
+                        ))}
+                    </select>
+                    {
+                        filter.map((filter) => {
+                            return (
+                                <div className='flex self-center justify-center'>
+                                    <h4>{filter.name.common}</h4>
+                                </div>
+                            )
+                        })
+                    }
+                </label>
+                {showResult ?  ( !notFound ?
+
+                    (data.map((item) => {
                         return (
-                            <div>
-                                <h4 key={index}>{item.name.common}</h4>
+                            <div className='flex self-center justify-center flex-col'>
+                                <img src={item.flags.png} onClick={handleClick} />
+                                <h4>{item.name.common}</h4>
                                 <p>{item.population}</p>
-                                <img src={item.flags.png} onClick={handleClick}/>
                             </div>
                         )
-                    })
-                }
-                {/* <div>
+                    })) : (
+                        <h3>Country not found</h3>
+                    )
+                ) : (
 
-                    {
-                        allFlags.map((flagItem, index) => (
-                            <div key={index}>
-                                <img src={flagItem.flags.png} alt={flagItem.name.common} />
-                            </div>
-                        ))
-                    }
-                </div>
-                <div>
-                    <button onClick={() => handlePage(currentPage - 1)} > Prev</button>
-                    <button onClick={() => handlePage(currentPage + 1)} > Next</button>
-                </div> */}
-                <div>
-                    <label>
-                        Filter by region:
-                        <select value={region} onChange={handleFilterRegion}>
-                            <option value="">Regions</option>
-                            {regionFilter.map((item, index) => (
-                                <option key={index} value={item}>{item}</option>
-                            ))}
-                        </select>
+                    <div className='flex flex-col justify-center content-center'>
+
                         {
-                           
-                            filter.map((filter, index) =>{
-                                return(
-                                    <div>
-                                        <h4 key={index}>{filter.name.common}</h4>
-                                    </div>
-                                )
-                            })
-                            
+                            allFlags.map((flagItem) => (
+                                <div className='flex self-center'>
+                                    <img src={flagItem.flags.png} alt={flagItem.name.common} />
+                                </div>
+                            ))
                         }
-                    </label>
+                        <div>
+                            <button onClick={() => handlePage(currentPage - 1)} > Prev</button>
+                            <button onClick={() => handlePage(currentPage + 1)} > Next</button>
+                        </div>
+                    </div>
+                )
+                }
+                <div>
                 </div>
-            </label>
+            </div>
         </>
     )
 }
