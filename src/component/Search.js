@@ -26,8 +26,9 @@ export default function Search() {
             if (res.ok) {
                 const dataRes = await res.json();
                 setData(dataRes)
+                setNotFound(false)
                 console.log(`data response`, dataRes)
-            } else if (res.status === 404){
+            } else if (res.status === 404) {
                 setNotFound(true)
             }
         }
@@ -58,7 +59,7 @@ export default function Search() {
             if (res.ok) {
                 const filterRes = await res.json();
                 setFilter(filterRes)
-            } 
+            }
         }
         catch {
             console.log('error in filter region');
@@ -121,8 +122,8 @@ export default function Search() {
 
     return (
         <>
-            <div className=' flex flex-col space-y-8'>
-                <label className='w-[80%] h-[2rem] outline outline-1 self-center mt-[1rem]'>
+            <div className=' flex flex-col space-y-8 bg-pink-50 dark:bg-gray-900'>
+                <label className='w-[90%] h-[2rem] outline outline-1 self-center mt-[1rem]'>
                     <input className='w-[100%] h-[100%]' onKeyPress={handleSearch} type='text' value={searchInput} placeholder='search country' onChange={e => setSearchInput(e.target.value)} />
                     {/* <button type="submit" onClick={handleSearch} >Search</button> */}
                 </label>
@@ -143,7 +144,7 @@ export default function Search() {
                         })
                     }
                 </label>
-                {showResult ?  ( !notFound ?
+                {showResult ? (!notFound ?
 
                     (data.map((item) => {
                         return (
