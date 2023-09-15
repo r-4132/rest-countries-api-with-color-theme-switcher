@@ -8,7 +8,7 @@ module.exports = {
     extend: {
       colors:{
         darkBlue:'var(--darkBlue)',
-        veryDarkBlueDark:'var(--veryDarkBlueDark)',
+        veryDarkBlue:'var(--veryDarkBlue)',
         veryDarkBlueLight:'var(--veryDarkBlueLight)',
         darkGray:'var(--darkGray)',
         lightGray:'var(--lightGray)',

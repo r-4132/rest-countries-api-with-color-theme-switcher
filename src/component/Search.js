@@ -1,19 +1,17 @@
 import React from 'react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import AllFlags from './AllFlags';
 
 export default function Search() {
     const [data, setData] = useState([]);
     const [searchInput, setSearchInput] = useState('');
-    const [flag, setFlag] = useState([])
-    const [currentPage, setCurrentPage] = useState(1);
-    const [allFlags, setAllFlags] = useState([]);
     const [filter, setFilter] = useState([]);
     const [region, setRegion] = useState('');
     const [showResult, setShowResult] = useState(false)
     const [notFound, setNotFound] = useState(false)
+    const [showFilter, setShowFilter] = useState(false)
 
-    const flagsPerPage = 6;
     const navigate = useNavigate();
 
 
@@ -37,58 +35,29 @@ export default function Search() {
         }
     }
 
-    const fetchFlag = async (e) => {
+    const fetchFilter = async (regionName) => {
         try {
-            const res = await fetch('https://restcountries.com/v3.1/all');
-            console.log(`flag response`, res);
-            if (res.ok) {
-                const flagRes = await res.json();
-                setFlag(flagRes);
-            }
-
-
-        }
-        catch {
-            console.log('error loading flags');
-        }
-
-    }
-    const fetchFilter = async (e) => {
-        try {
-            const res = await fetch(`https://restcountries.com/v3.1/all?region=${region}`);
+            const res = await fetch(`https://restcountries.com/v3.1/region/${regionName}`);
             if (res.ok) {
                 const filterRes = await res.json();
-                setFilter(filterRes)
+                setFilter(filterRes);
+                console.log(filterRes)
             }
         }
         catch {
             console.log('error in filter region');
         }
     }
-
-
-    useEffect(() => {
-        fetchFlag();
-
-    }, [])
-
-    useEffect(() => {
-        const start = (currentPage - 1) * flagsPerPage;
-        const end = start + flagsPerPage;
-        const allFlagsDisplay = flag.slice(start, end);
-        setAllFlags(allFlagsDisplay)
-    }, [flag, currentPage])
-
+    
 
     const handleSearch = (e) => {
         if (e.key === 'Enter') {
             setShowResult(true)
             fetchData();
+            if(showFilter){
+                setShowFilter(false);
+            }
         }
-    }
-
-    const handlePage = nextPage => {
-        setCurrentPage(nextPage)
     }
 
     const regionFilter = [
@@ -103,18 +72,20 @@ export default function Search() {
 
 
     const handleFilterRegion = (event) => {
-        setRegion(event.target.value);
         const selectedRegion = event.target.value;
-        fetchFilter();
+        fetchFilter(selectedRegion);
+        setShowFilter(true);
     }
 
     const handleClick = () => {
         const dataArray = Object.values(data);
 
         if (!dataArray.some(x => x.borders)) {
+            console.log('no border countries')
             navigate(`/flagInfo`, { state: { countryData: dataArray } });
         } else {
             const borderCountries = data.map(x => x.borders.join(','))
+            console.log('with border countries')
             navigate(`/flagInfo`, { state: { countryData: dataArray, borderCountries: borderCountries } });
         }
     }
@@ -122,61 +93,66 @@ export default function Search() {
 
     return (
         <>
-            <div className=' flex flex-col space-y-8 bg-pink-50 dark:bg-gray-900'>
-                <label className='w-[90%] h-[2rem] outline outline-1 self-center mt-[1rem]'>
-                    <input className='w-[100%] h-[100%]' onKeyPress={handleSearch} type='text' value={searchInput} placeholder='search country' onChange={e => setSearchInput(e.target.value)} />
-                    {/* <button type="submit" onClick={handleSearch} >Search</button> */}
-                </label>
-                <label>
-                    <select value={region} onChange={handleFilterRegion}>
-                        <option value="">Filter by region:</option>
-                        {regionFilter.map((item) => (
-                            <option value={item}>{item}</option>
-                        ))}
-                    </select>
-                    {
-                        filter.map((filter) => {
-                            return (
-                                <div className='flex self-center justify-center'>
-                                    <h4>{filter.name.common}</h4>
-                                </div>
-                            )
-                        })
-                    }
-                </label>
-                {showResult ? (!notFound ?
+            <div className='h-screen flex flex-col space-y-8 bg-lightGray dark:bg-veryDarkBlue'>
+                <label className='w-[90%] h-[3rem] flex flex-col self-center mt-[1rem] relative mb-[5rem] '>
+                    <div >
+                        <input className='w-[100%] h-[100%] rounded-md p-[1rem] pl-[2rem] dark:bg-darkBlue dark:text-white' onKeyPress={handleSearch} type='text' value={searchInput} placeholder='&nbsp; search country...' onChange={e => setSearchInput(e.target.value)} />
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4 absolute top-6 transform -translate-y-1/2 left-4 text-gray-500 dark:text-white">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
+                        </svg>
 
-                    (data.map((item) => {
-                        return (
-                            <div className='flex self-center justify-center flex-col'>
-                                <img src={item.flags.png} onClick={handleClick} />
-                                <h4>{item.name.common}</h4>
-                                <p>{item.population}</p>
+                    </div>
+                    <div className='self-start mt-[1rem]'>
+
+                        <select value={region} onChange={handleFilterRegion} className='h-[3rem] w-[15rem] p-[.5rem]  rounded-md dark:bg-darkBlue dark:text-white'>
+                            <option value="" >Filter by region</option>
+                            {regionFilter.map((item) => (
+                                <option value={item}>{item}</option>
+                            ))}
+                        </select>
+
+                    </div>
+
+                </label>
+
+                {
+                    !showFilter ? (
+
+                        showResult ? (
+                            !notFound ? (
+                                data.map((item) => {
+                                    return (
+                                        <div className='flex self-center justify-center flex-col'>
+                                            <img src={item.flags.png} onClick={handleClick} />
+                                            <h4>{item.name.common}</h4>
+                                            <p>{item.population}</p>
+                                        </div>
+                                    )
+                                })
+
+                            ) : (<h3>Country not found</h3>)
+                        ) : (
+
+                            <div className='self-center'>
+                                <AllFlags />
                             </div>
                         )
-                    })) : (
-                        <h3>Country not found</h3>
-                    )
-                ) : (
-
-                    <div className='flex flex-col justify-center content-center'>
-
-                        {
-                            allFlags.map((flagItem) => (
-                                <div className='flex self-center'>
-                                    <img src={flagItem.flags.png} alt={flagItem.name.common} />
-                                </div>
-                            ))
-                        }
-                        <div>
-                            <button onClick={() => handlePage(currentPage - 1)} > Prev</button>
-                            <button onClick={() => handlePage(currentPage + 1)} > Next</button>
+                    ) : (
+                        <div className='flex flex-col justify-center content-center'>
+                            {
+                                filter.map((filter) => {
+                                    return (
+                                        <div className=''>
+                                            <img src={filter.flags.png} className='w-[25px]'/>
+                                            <h4>{filter.name.common}</h4>
+                                            <p>{filter.population}</p>
+                                        </div>
+                                    )
+                                })
+                            }
                         </div>
-                    </div>
-                )
+                    )
                 }
-                <div>
-                </div>
             </div>
         </>
     )

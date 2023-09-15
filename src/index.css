@@ -12,13 +12,15 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+@import './index.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root{
   --darkBlue:hsl(209, 23%, 22%);
-  --veryDarkBlue-Dark:hsl(207, 26%, 17%);
+  --veryDarkBlue:hsl(207, 26%, 17%);
   --veryDarkBlueLight:hsl(200, 15%, 8%);
   --darkGray:hsl(0, 0%, 52%);
   --lightGray:hsl(0, 0%, 98%);
