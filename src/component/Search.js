@@ -15,9 +15,9 @@ export default function Search() {
     const navigate = useNavigate();
 
 
-    const fetchData = async (e) => {
+    const fetchData = async (input) => {
         try {
-            const res = await fetch(`https://restcountries.com/v3.1/name/${searchInput}`);
+            const res = await fetch(`https://restcountries.com/v3.1/name/${input}`);
             console.log(`API response`, res);
 
 
@@ -49,27 +49,11 @@ export default function Search() {
         }
     }
 
-    const fetchDataFilter = async (input) => {
-        try {
-            const res = await fetch(`https://restcountries.com/v3.1/name/${input}`);
-            console.log(`API response`, res);
-
-            if (res.ok) {
-                const dataRes = await res.json();
-                return dataRes || [];
-            } 
-        }
-        catch {
-            console.log('error in fetching data')
-        }
-        return [];
-    }
-
 
     const handleSearch = (e) => {
         if (e.key === 'Enter') {
             setShowResult(true)
-            fetchData();
+            fetchData(searchInput);
             if (showFilter) {
                 setShowFilter(false);
             }
@@ -93,9 +77,7 @@ export default function Search() {
         setShowFilter(true);
     }
 
-    const handleClick = () => {
-        const dataArray = Object.values(data);
-
+    const handleClick = (dataArray) => {
         if (!dataArray.some(x => x.borders)) {
             console.log('no border countries')
             navigate(`/flagInfo`, { state: { countryData: dataArray } });
@@ -105,20 +87,7 @@ export default function Search() {
             navigate(`/flagInfo`, { state: { countryData: dataArray, borderCountries: borderCountries } });
         }
     }
-    const handleClickFilter = async(itemName) => {    
-        const dataArray = await fetchDataFilter(itemName);
-        console.log(dataArray)
-
-        if (!dataArray.some(x => x.borders)) {
-            console.log('no border countries')
-            navigate(`/flagInfo`, { state: { countryData: dataArray } });
-        } else {
-            const borderCountries = dataArray.map(x => x.borders.join(','))
-            console.log(borderCountries, 'broderCountries')
-            navigate(`/flagInfo`, { state: { countryData: dataArray, borderCountries: borderCountries } });
-
-        }
-    }
+    
 
 
     return (
@@ -130,7 +99,6 @@ export default function Search() {
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4 absolute top-6 transform -translate-y-1/2 left-4 text-gray-500 dark:text-white">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                         </svg>
-
                     </div>
                     <div className='self-start mt-[1rem]'>
 
@@ -153,7 +121,7 @@ export default function Search() {
                                 data.map((item) => {
                                     return (
                                         <div className='flex self-center justify-center flex-col'>
-                                            <img src={item.flags.png} onClick={handleClick} />
+                                            <img src={item.flags.png} onClick={() => handleClick(data)}  />
                                             <h4>{item.name.common}</h4>
                                             <p>{item.population}</p>
                                         </div>
@@ -174,7 +142,7 @@ export default function Search() {
                                     return (
                                         <div className='text-left mt-[1rem] bg-white dark:text-white dark:bg-darkBlue'>
                                             <div className='space-y-3 space-x-4'>
-                                                <img src={filter.flags.png} alt={filter.name.common} onClick={() => handleClickFilter(filter.name.common)}/>
+                                                <img src={filter.flags.png} alt={filter.name.common} onClick={() => handleClick([filter])} />
                                                 <h3 className='text-bold'>{filter.name.common}</h3>
                                                 <div>
                                                     <h4>{filter.region}</h4>
