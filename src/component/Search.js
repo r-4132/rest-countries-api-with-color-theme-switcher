@@ -48,13 +48,29 @@ export default function Search() {
             console.log('error in filter region');
         }
     }
-    
+
+    const fetchDataFilter = async (input) => {
+        try {
+            const res = await fetch(`https://restcountries.com/v3.1/name/${input}`);
+            console.log(`API response`, res);
+
+            if (res.ok) {
+                const dataRes = await res.json();
+                return dataRes || [];
+            } 
+        }
+        catch {
+            console.log('error in fetching data')
+        }
+        return [];
+    }
+
 
     const handleSearch = (e) => {
         if (e.key === 'Enter') {
             setShowResult(true)
             fetchData();
-            if(showFilter){
+            if (showFilter) {
                 setShowFilter(false);
             }
         }
@@ -89,11 +105,25 @@ export default function Search() {
             navigate(`/flagInfo`, { state: { countryData: dataArray, borderCountries: borderCountries } });
         }
     }
+    const handleClickFilter = async(itemName) => {    
+        const dataArray = await fetchDataFilter(itemName);
+        console.log(dataArray)
+
+        if (!dataArray.some(x => x.borders)) {
+            console.log('no border countries')
+            navigate(`/flagInfo`, { state: { countryData: dataArray } });
+        } else {
+            const borderCountries = dataArray.map(x => x.borders.join(','))
+            console.log(borderCountries, 'broderCountries')
+            navigate(`/flagInfo`, { state: { countryData: dataArray, borderCountries: borderCountries } });
+
+        }
+    }
 
 
     return (
         <>
-            <div className='h-screen flex flex-col space-y-8 bg-lightGray dark:bg-veryDarkBlue'>
+            <div className='h-auto flex flex-col space-y-8 bg-lightGray dark:bg-veryDarkBlue'>
                 <label className='w-[90%] h-[3rem] flex flex-col self-center mt-[1rem] relative mb-[5rem] '>
                     <div >
                         <input className='w-[100%] h-[100%] rounded-md p-[1rem] pl-[2rem] dark:bg-darkBlue dark:text-white' onKeyPress={handleSearch} type='text' value={searchInput} placeholder='&nbsp; search country...' onChange={e => setSearchInput(e.target.value)} />
@@ -138,14 +168,21 @@ export default function Search() {
                             </div>
                         )
                     ) : (
-                        <div className='flex flex-col justify-center content-center'>
+                        <div className='self-center'>
                             {
                                 filter.map((filter) => {
                                     return (
-                                        <div className=''>
-                                            <img src={filter.flags.png} className='w-[25px]'/>
-                                            <h4>{filter.name.common}</h4>
-                                            <p>{filter.population}</p>
+                                        <div className='text-left mt-[1rem] bg-white dark:text-white dark:bg-darkBlue'>
+                                            <div className='space-y-3 space-x-4'>
+                                                <img src={filter.flags.png} alt={filter.name.common} onClick={() => handleClickFilter(filter.name.common)}/>
+                                                <h3 className='text-bold'>{filter.name.common}</h3>
+                                                <div>
+                                                    <h4>{filter.region}</h4>
+                                                    <h4>{filter.capital}</h4>
+                                                    <p>{filter.population}</p>
+                                                </div>
+                                            </div>
+
                                         </div>
                                     )
                                 })
