@@ -11,8 +11,13 @@ export default function Search() {
     const [showResult, setShowResult] = useState(false)
     const [notFound, setNotFound] = useState(false)
     const [showFilter, setShowFilter] = useState(false)
+    const [currentPage, setCurrentPage] = useState(1);
+    const [flagFilter, setFlagFilter] = useState([]);
+
+
 
     const navigate = useNavigate();
+    const flagsPerPage = 6;
 
 
     const fetchData = async (input) => {
@@ -49,7 +54,6 @@ export default function Search() {
         }
     }
 
-
     const handleSearch = (e) => {
         if (e.key === 'Enter') {
             setShowResult(true)
@@ -64,10 +68,8 @@ export default function Search() {
         "Asia",
         "Europe",
         "Africa",
-        "Antartica",
-        "Australia",
-        "North America",
-        "South America",
+        "America",
+        "Oceania",
     ]
 
 
@@ -87,27 +89,43 @@ export default function Search() {
             navigate(`/flagInfo`, { state: { countryData: dataArray, borderCountries: borderCountries } });
         }
     }
-    
+
+    const handlePage = nextPage => {
+        setCurrentPage(nextPage);
+    }
+
+    useEffect(() => {
+        const start = (currentPage - 1) * flagsPerPage;
+        const end = start + flagsPerPage;
+        const allFlagsDisplay = filter.slice(start, end);
+        setFlagFilter(allFlagsDisplay);
+    }, [currentPage, filter]);
+
 
 
     return (
         <>
-            <div className='h-auto flex flex-col space-y-8 bg-lightGray dark:bg-veryDarkBlue'>
+            <div className='h-auto flex flex-col space-y-8 bg-lightGray dark:bg-veryDarkBlue dark:text-white'>
                 <label className='w-[90%] h-[3rem] flex flex-col self-center mt-[1rem] relative mb-[5rem] '>
                     <div >
-                        <input className='w-[100%] h-[100%] rounded-md p-[1rem] pl-[2rem] dark:bg-darkBlue dark:text-white' onKeyPress={handleSearch} type='text' value={searchInput} placeholder='&nbsp; search country...' onChange={e => setSearchInput(e.target.value)} />
+                        <input className='w-[100%] h-[100%] rounded-md p-[1rem] pl-[2rem] dark:bg-darkBlue dark:text-white' onKeyPress={handleSearch} type='text' value={searchInput} placeholder='&nbsp; &nbsp; &nbsp;search country...' onChange={e => setSearchInput(e.target.value)} />
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4 absolute top-6 transform -translate-y-1/2 left-4 text-gray-500 dark:text-white">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                         </svg>
                     </div>
                     <div className='self-start mt-[1rem]'>
-
-                        <select value={region} onChange={handleFilterRegion} className='h-[3rem] w-[15rem] p-[.5rem]  rounded-md dark:bg-darkBlue dark:text-white'>
+                        <select value={region} onChange={handleFilterRegion} className='h-[3rem] w-[15rem] p-[.5rem] rounded-md dark:bg-darkBlue dark:text-white appearance-none'>
                             <option value="" >Filter by region</option>
                             {regionFilter.map((item) => (
                                 <option value={item}>{item}</option>
                             ))}
                         </select>
+                        <div className='relative'>
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 absolute bottom-3.5 right-4 dark:text-white">
+                                <path fill-rule="evenodd" d="M12.53 16.28a.75.75 0 01-1.06 0l-7.5-7.5a.75.75 0 011.06-1.06L12 14.69l6.97-6.97a.75.75 0 111.06 1.06l-7.5 7.5z" clip-rule="evenodd" />
+                            </svg>
+
+                        </div>
 
                     </div>
 
@@ -121,7 +139,7 @@ export default function Search() {
                                 data.map((item) => {
                                     return (
                                         <div className='flex self-center justify-center flex-col'>
-                                            <img src={item.flags.png} onClick={() => handleClick(data)}  />
+                                            <img src={item.flags.png} onClick={() => handleClick(data)} />
                                             <h4>{item.name.common}</h4>
                                             <p>{item.population}</p>
                                         </div>
@@ -138,11 +156,11 @@ export default function Search() {
                     ) : (
                         <div className='self-center'>
                             {
-                                filter.map((filter) => {
+                                flagFilter.map((filter) => {
                                     return (
                                         <div className='text-left mt-[1rem] bg-white dark:text-white dark:bg-darkBlue'>
                                             <div className='space-y-3 space-x-4'>
-                                                <img src={filter.flags.png} alt={filter.name.common} onClick={() => handleClick([filter])} />
+                                                <img src={filter.flags.png} alt={filter.name.common} onClick={() => handleClick([filter])} className='w-[280px]' />
                                                 <h3 className='text-bold'>{filter.name.common}</h3>
                                                 <div>
                                                     <h4>{filter.region}</h4>
@@ -150,11 +168,14 @@ export default function Search() {
                                                     <p>{filter.population}</p>
                                                 </div>
                                             </div>
-
                                         </div>
                                     )
                                 })
                             }
+                            <div className='space-x-5'>
+                                <button onClick={() => handlePage(currentPage - 1)} > Previous</button>
+                                <button onClick={() => handlePage(currentPage + 1)} > Next</button>
+                            </div>
                         </div>
                     )
                 }
