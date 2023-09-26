@@ -4,12 +4,12 @@ import { useNavigate } from 'react-router-dom';
 
 function AllFlags() {
     const [data, setData] = useState([]);
-    const [flag, setFlag] = useState([])    
+    const [flag, setFlag] = useState([])
     const [allFlags, setAllFlags] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
 
     const navigate = useNavigate();
-    const flagsPerPage = 6;
+    const flagsPerPage = 8;
 
     const fetchData = async (input) => {
         try {
@@ -19,7 +19,7 @@ function AllFlags() {
             if (res.ok) {
                 const dataRes = await res.json();
                 return dataRes || [];
-            } 
+            }
         }
         catch {
             console.log('error in fetching data')
@@ -59,7 +59,7 @@ function AllFlags() {
         setCurrentPage(nextPage)
     }
 
-    const handleClick = async(itemName) => {    
+    const handleClick = async (itemName) => {
         const dataArray = await fetchData(itemName);
         console.log(dataArray)
 
@@ -76,24 +76,28 @@ function AllFlags() {
 
     return (
         <>
-            {
-                allFlags.map((item) => (
-                    <div className='text-left mt-[1rem] bg-white dark:text-white dark:bg-darkBlue'>
-                        <div className='space-y-3 space-x-4'>
-                            <img src={item.flags.png} alt={item.name.common}  onClick={() => handleClick(item.name.common)} className='w-[280px]' />
-                            <h3 className='text-bold'>{item.name.common}</h3>
-                            <div>
-                                <h4>{item.region}</h4>
-                                <h4>{item.capital}</h4>
-                                <p>{item.population}</p>
+            <div className='lg:grid lg:grid-cols-4 gap-16'>
+
+                {
+                    allFlags.map((item) => (
+                        <div className='text-left mt-[1rem] bg-white dark:text-white dark:bg-darkBlue'>
+                            <div className='space-y-3 space-x-4'>
+                                <img src={item.flags.png} alt={item.name.common} onClick={() => handleClick(item.name.common)} 
+                                className='w-[280px] h-[190px]' />
+                                <h3 className='text-bold'>{item.name.common}</h3>
+                                <div>
+                                    <h4>{item.region}</h4>
+                                    <h4>{item.capital}</h4>
+                                    <p>{item.population}</p>
+                                </div>
                             </div>
+
                         </div>
+                    ))
 
-                    </div>
-                ))
-
-            }
-            <div className='space-x-5'>
+                }
+            </div>
+            <div className='space-x-5 lg:m-[2rem]'>
                 <button onClick={() => handlePage(currentPage - 1)} > Previous</button>
                 <button onClick={() => handlePage(currentPage + 1)} > Next</button>
             </div>

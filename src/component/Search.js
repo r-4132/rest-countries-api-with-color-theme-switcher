@@ -17,7 +17,7 @@ export default function Search() {
 
 
     const navigate = useNavigate();
-    const flagsPerPage = 6;
+    const flagsPerPage = 8;
 
 
     const fetchData = async (input) => {
@@ -105,15 +105,15 @@ export default function Search() {
 
     return (
         <>
-            <div className='h-auto flex flex-col space-y-8 bg-lightGray dark:bg-veryDarkBlue dark:text-white'>
-                <label className='w-[90%] h-[3rem] flex flex-col self-center mt-[1rem] relative mb-[5rem] '>
+            <div className='h-full flex flex-col space-y-8 bg-lightGray dark:bg-veryDarkBlue dark:text-white'>
+                <label className='w-[90%] h-[3rem] flex flex-col self-center mt-[1rem] relative mb-[5rem] lg:flex-row lg:justify-between lg:w-[86.5%] lg:m-[2rem]'>
                     <div >
-                        <input className='w-[100%] h-[100%] rounded-md p-[1rem] pl-[2rem] dark:bg-darkBlue dark:text-white' onKeyPress={handleSearch} type='text' value={searchInput} placeholder='&nbsp; &nbsp; &nbsp;search country...' onChange={e => setSearchInput(e.target.value)} />
+                        <input className='w-[100%] h-[100%] rounded-md p-[1rem] pl-[2rem] dark:bg-darkBlue dark:text-white lg:w-[30rem]' onKeyPress={handleSearch} type='text' value={searchInput} placeholder='&nbsp; &nbsp; &nbsp;search country...' onChange={e => setSearchInput(e.target.value)} />
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-4 h-4 absolute top-6 transform -translate-y-1/2 left-4 text-gray-500 dark:text-white">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" />
                         </svg>
                     </div>
-                    <div className='self-start mt-[1rem]'>
+                    <div className='self-start mt-[1rem] lg:mt-[0rem]'>
                         <select value={region} onChange={handleFilterRegion} className='h-[3rem] w-[15rem] p-[.5rem] rounded-md dark:bg-darkBlue dark:text-white appearance-none'>
                             <option value="" >Filter by region</option>
                             {regionFilter.map((item) => (
@@ -155,24 +155,27 @@ export default function Search() {
                         )
                     ) : (
                         <div className='self-center'>
-                            {
-                                flagFilter.map((filter) => {
-                                    return (
-                                        <div className='text-left mt-[1rem] bg-white dark:text-white dark:bg-darkBlue'>
-                                            <div className='space-y-3 space-x-4'>
-                                                <img src={filter.flags.png} alt={filter.name.common} onClick={() => handleClick([filter])} className='w-[280px]' />
-                                                <h3 className='text-bold'>{filter.name.common}</h3>
-                                                <div>
-                                                    <h4>{filter.region}</h4>
-                                                    <h4>{filter.capital}</h4>
-                                                    <p>{filter.population}</p>
+                            <div  className='lg:grid lg:grid-cols-4 gap-16'>
+                                {
+                                    flagFilter.map((filter) => {
+                                        return (
+                                            <div className='text-left mt-[1rem] bg-white dark:text-white dark:bg-darkBlue'>
+                                                <div className='space-y-3 space-x-4'>
+                                                    <img src={filter.flags.png} alt={filter.name.common} onClick={() => handleClick([filter])}
+                                                        className='w-[280px] h-[190px]' />
+                                                    <h3 className='text-bold'>{filter.name.common}</h3>
+                                                    <div>
+                                                        <h4>{filter.region}</h4>
+                                                        <h4>{filter.capital}</h4>
+                                                        <p>{filter.population}</p>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    )
-                                })
-                            }
-                            <div className='space-x-5'>
+                                        )
+                                    })
+                                }
+                            </div>
+                            <div className='space-x-5 lg:m-[2rem]'>
                                 <button onClick={() => handlePage(currentPage - 1)} > Previous</button>
                                 <button onClick={() => handlePage(currentPage + 1)} > Next</button>
                             </div>
